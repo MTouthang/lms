@@ -1,4 +1,5 @@
 import app from "./app.js";
+import connectToDB from "./configs/dbConn.js";
 
 const PORT = process.env.PORT;
 
@@ -14,6 +15,7 @@ app.all("*", (_req, res) => {
   });
 });
 
-app.listen(8080, () => {
+app.listen(8080, async () => {
+  await connectToDB();
   console.log(`App is running at http://localhost:${PORT}`);
 });
