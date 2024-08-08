@@ -1,6 +1,6 @@
 function asyncHandler(fn) {
   return function (req, res, next) {
-    fn(re, res, next).catch(function (err) {
+    fn(req, res, next).catch(function (err) {
       next(err);
     });
   };

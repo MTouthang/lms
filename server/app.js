@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import userRoutes from "./routes/user.routes.js";
 
 config();
 const app = express();
@@ -16,6 +17,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use(cookieParser());
 app.use(morgan("dev"));
+
+// user routes
+app.use("/api/v1/user", userRoutes);
 
 app.use(errorMiddleware);
 
