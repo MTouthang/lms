@@ -16,8 +16,9 @@ const cookieOptions = {
  * -> create the user with the given data
  * -> check if the user has been created successfully
  * -> if user created successfully generate token
- * - response the success with message and user data (user password should be omitted)
+ * -> response the success with message and user data (user password should be omitted)
  */
+
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
 
@@ -68,3 +69,13 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     user,
   });
 });
+
+/**
+ * Login users
+ * -> get the field (password, email)
+ * -> validate if the email and present
+ * -> find the user with email along with the password
+ * -> check and compared the password
+ * -> generate token and cookie
+ * -> response with success message, with user data
+ */
