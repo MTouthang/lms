@@ -1,5 +1,5 @@
 import asyncHandler from "../middlewares/ayncHandler.middleware.js";
-import AppError from "../middlewares/appError.js";
+import AppError from "../utils/appError.js";
 import User from "../models/user.model.js";
 
 // cookie options
@@ -141,7 +141,6 @@ export const loginUser = asyncHandler(async (req, res, next) => {
  * --- Flow ---
  * -> clear or set the token to null
  */
-
 export const logoutUser = asyncHandler(async (req, res, next) => {
   // setting cookie to null
   res.cookie("token", null, {
@@ -154,5 +153,15 @@ export const logoutUser = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "User logged out successfully",
+  });
+});
+
+export const getLoggedUserDetails = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({
+    success: true,
+    message: "User details",
+    user,
   });
 });
