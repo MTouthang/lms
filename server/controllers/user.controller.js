@@ -73,6 +73,20 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 /**
  * Login users
+ * /**
+ * @function loginUser
+ * @description Logs in a user by verifying their email and password, generating a JWT token, and setting a cookie.
+ * @async
+ *
+ * @param {string} req.body.email - The email of the user
+ * @param {string} req.body.password - The password of the user
+ * @param {Function} next - Express next middleware function
+ *
+ * @throws {AppError} 400 - If email or password is not provided
+ * @throws {AppError} 401 - If email or password is incorrect, or user does not exist
+ *
+ * @returns {Promise<void>} Responds with success message, user data (without password), and sets a cookie with JWT token if login is successful
+ * --- Flow ---
  * -> get the field (password, email)
  * -> validate if the email and present
  * -> find the user with email along with the password
@@ -110,5 +124,35 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     success: true,
     message: " User logged in successfully",
     user,
+  });
+});
+
+/**
+ * @function logoutUser
+ * @description Logs out a user by clearing the authentication token cookie and sending a success response.
+ * @async
+ *
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ *
+ * @returns {Promise<void>} Responds with a success message and clears the token cookie
+ * @route - api/v1/user/logout
+ * --- Flow ---
+ * -> clear or set the token to null
+ */
+
+export const logoutUser = asyncHandler(async (req, res, next) => {
+  // setting cookie to null
+  res.cookie("token", null, {
+    secure: process.env.NODE_ENV === "production" ? true : false,
+    maxAge: 0,
+    httpOnly: true,
+  });
+
+  // Sending the response
+  res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
   });
 });
