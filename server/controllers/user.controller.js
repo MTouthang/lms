@@ -1,6 +1,7 @@
 import asyncHandler from "../middlewares/ayncHandler.middleware.js";
 import AppError from "../middlewares/appError.js";
 import User from "../models/user.model.js";
+
 // cookie options
 const cookieOptions = {
   secure: process.env.NODE_ENV === "production" ? true : false, // ensures that the cookie is sent only over HTTPS
@@ -79,3 +80,35 @@ export const registerUser = asyncHandler(async (req, res, next) => {
  * -> generate token and cookie
  * -> response with success message, with user data
  */
+export const loginUser = asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return next(new AppError("Email and Password are required", 400));
+  }
+
+  // finding the user with sent email
+  const user = await User.findOne({ email }).select("+password");
+  console.log(user);
+
+  if (!(user && (await user.comparePassword(password)))) {
+    return next(
+      new AppError("Email or Password do not match or user does not exist", 401)
+    );
+  }
+
+  // generate token
+  const token = await user.generateJWTToken();
+
+  // setting password to undefined so it does not send to the user
+  user.password = undefined;
+
+  res.cookie("token", token, cookieOptions);
+
+  // if all good response send to the client
+  res.status(200).json({
+    success: true,
+    message: " User logged in successfully",
+    user,
+  });
+});
