@@ -165,3 +165,49 @@ export const getLoggedUserDetails = asyncHandler(async (req, res) => {
     user,
   });
 });
+
+/**
+ * forgot user password
+ */
+export const forgotPassword = asyncHandler(async (req, res, next) => {
+  const { email } = req.body;
+
+  // If no email send email required message
+  if (!email) {
+    return next(new AppError("Email is required", 400));
+  }
+
+  // Finding the user via email
+  const user = await User.findOne({ email });
+
+  // If no email found send the message email not found
+  if (!user) {
+    return next(new AppError("Email not registered", 400));
+  }
+
+  // Generating the reset token via the method we have in user model
+  const resetToken = await user.generatePasswordResetToken();
+
+  // Saving the forgotPassword* to DB
+  await user.save();
+
+  // constructing a url to send the correct data
+  /**HERE
+   * req.protocol will send if http or https
+   * req.get('host') will get the hostname
+   * the rest is the route that we will create to verify if token is correct or not
+   */
+  const resetPasswordUrl = `${req.protocol}://${req.get(
+    "host"
+  )}/api/v1/user/reset/${resetToken}`;
+
+  // We here need to send an email to the user with the token
+  // For now let's log and see it
+  console.log(resetPasswordUrl);
+
+  // If email sent successfully send the success response
+  res.status(200).json({
+    success: true,
+    message: `Reset password token has been sent to ${email} successfully`,
+  });
+});

@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new Schema(
   {
@@ -75,6 +76,29 @@ userSchema.methods.generateJWTToken = function () {
       expiresIn: process.env.JWT_EXPIRY,
     }
   );
+};
+
+/**
+ * Generates a password reset token, hashes it, and stores the hash in the user's schema.
+ * Also sets an expiration time for the token.
+ *
+ * @async
+ * @method generatePasswordResetToken
+ * @returns {Promise<string>} The plain reset token before hashing, to be sent to the user.
+ */
+userSchema.methods.generatePasswordResetToken = async function () {
+  // create random token using node built-in crypto
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  // again hash the token with crypto
+  this.forgotPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // add forgotPassword expiry date
+  this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
+  return resetToken;
 };
 
 const User = model("User", userSchema);
