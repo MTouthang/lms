@@ -167,7 +167,9 @@ export const getLoggedUserDetails = asyncHandler(async (req, res) => {
 });
 
 /**
- * forgot user password
+ * @FORGOT_PASSWORD
+ * @ROUTE @POST {{URL}}/api/v1/user/reset
+ * @ACCESS Public
  */
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
@@ -203,11 +205,31 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 
   // We here need to send an email to the user with the token
   // For now let's log and see it
-  console.log(resetPasswordUrl);
 
-  // If email sent successfully send the success response
-  res.status(200).json({
-    success: true,
-    message: `Reset password token has been sent to ${email} successfully`,
-  });
+  // we need to send mail to the user with token
+  const subject = "Reset Password";
+  const message = `You can reset your password by clicking <a href=${resetPasswordUrl} target="_blank">Reset your password</a>\nIf the above link does not work for some reason then copy paste this link in new tab ${resetPasswordUrl}.\n If you have not requested this, kindly ignore.`;
+
+  try {
+    await sendEmail(email, subject, message);
+
+    // If email sent successfully send the success response
+    res.status(200).json({
+      success: true,
+      message: `Reset password token has been sent to ${email} successfully`,
+    });
+  } catch (error) {
+    // If some error happened we need to clear the forgotPassword* fields in our DB
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordExpiry = undefined;
+
+    await user.save();
+
+    return next(
+      new AppError(
+        error.message || "Something went wrong, please try again.",
+        500
+      )
+    );
+  }
 });
