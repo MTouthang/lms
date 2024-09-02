@@ -3,6 +3,8 @@ import AppError from "../utils/appError.js";
 import User from "../models/user.model.js";
 import sendEmail from "../utils/sendEmail.js";
 import crypto from "crypto";
+import cloudinary from "cloudinary";
+import fs from "fs/promises";
 
 // cookie options
 const cookieOptions = {
@@ -289,5 +291,66 @@ export const resetPassword = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Password changed successfully",
+  });
+});
+
+/**
+ * @UPDATE_USER_DETAILS
+ * @ROUTE @POST {{URL}}/api/v1/user/update/:id
+ * @ACCESS private
+ */
+export const updateUser = asyncHandler(async (req, res, next) => {
+  // Destructuring the necessary data from the req object
+  const { name } = req.body;
+  const { id } = req.params;
+  console.log(name);
+  console.log(id);
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new AppError("Invalid user id or user does not exist"));
+  }
+
+  if (name) {
+    user.name = name;
+  }
+
+  // Run only if user sends a file
+  if (req.file) {
+    // Deletes the old image uploaded by the user
+    await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: "lms", // Save files in a folder named lms
+        width: 250,
+        height: 250,
+        gravity: "faces",
+        crop: "fill",
+      });
+
+      // If success
+      if (result) {
+        // Set the public_id and secure_url in DB
+        user.avatar.public_id = result.public_id;
+        user.avatar.secure_url = result.secure_url;
+
+        // After successful upload remove the file from local storage
+        fs.rm(`uploads/${req.file.filename}`);
+      }
+    } catch (error) {
+      return next(
+        new AppError(error || "File not uploaded, please try again", 400)
+      );
+    }
+  }
+
+  // Save the user object
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "User details updated successfully",
   });
 });
