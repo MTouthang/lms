@@ -1,6 +1,8 @@
 import asyncHandler from "../middlewares/ayncHandler.middleware.js";
 import AppError from "../utils/appError.js";
 import User from "../models/user.model.js";
+import sendEmail from "../utils/sendEmail.js";
+import crypto from "crypto";
 
 // cookie options
 const cookieOptions = {
@@ -232,4 +234,60 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
       )
     );
   }
+});
+
+/**
+ * @RESET_PASSWORD
+ * @ROUTE @POST {{URL}}/api/v1/user/reset/:resetToken
+ * @ACCESS Public
+ */
+export const resetPassword = asyncHandler(async (req, res, next) => {
+  // Extracting resetToken from req.params object
+  const { resetToken } = req.params;
+  console.log(resetToken);
+  // Extracting password from req.body object
+  const { password } = req.body;
+
+  console.log(password);
+
+  // We are again hashing the resetToken using sha256 since we have stored our resetToken in DB using the same algorithm
+  const forgotPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  console.log(forgotPasswordToken);
+  // Check if password is not there then send response saying password is required
+  if (!password) {
+    return next(new AppError("Password is required", 400));
+  }
+
+  // Checking if token matches in DB and if it is still valid(Not expired)
+  const user = await User.findOne({
+    forgotPasswordToken,
+    forgotPasswordExpiry: { $gt: Date.now() }, // $gt will help us check for greater than value, with this we can check if token is valid or expired
+  });
+
+  // If not found or expired send the response
+  if (!user) {
+    return next(
+      new AppError("Token is invalid or expired, please try again", 400)
+    );
+  }
+
+  // Update the password if token is valid and not expired
+  user.password = password;
+
+  // making forgotPassword* values undefined in the DB
+  user.forgotPasswordExpiry = undefined;
+  user.forgotPasswordToken = undefined;
+
+  // Saving the updated user values
+  await user.save();
+
+  // Sending the response when everything goes good
+  res.status(200).json({
+    success: true,
+    message: "Password changed successfully",
+  });
 });

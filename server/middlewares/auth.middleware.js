@@ -30,6 +30,4 @@ export const isLoggedIn = async (req, res, next) => {
       return next(new AppError("Token has expired, please login again", 401));
     }
   }
-  // handle jwt verify error
-  return next(new AppError("Unauthorized, please login to continue", 401));
 };
