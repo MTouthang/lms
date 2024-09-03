@@ -2,6 +2,7 @@ import express from "express";
 import {
   addLecturesToCourseById,
   createCourse,
+  deleteCourseById,
   getAllCourse,
   getLecturesByCourseId,
   removeLectureFromCourse,
@@ -27,5 +28,7 @@ router.delete(
   authorizeRoles("ADMIN"),
   removeLectureFromCourse
 );
+
+router.delete("/:id", isLoggedIn, authorizeRoles("ADMIN"), deleteCourseById);
 
 export default router;
