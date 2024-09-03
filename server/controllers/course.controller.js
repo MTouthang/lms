@@ -4,7 +4,7 @@ import AppError from "../utils/appError.js";
 
 /**
  * @GET_ALL_COURSE
- * @ROUTE @POST {{URL}}/api/v1/course/
+ * @ROUTE @GET {{URL}}/api/v1/course/
  * @ACCESS public
  * fetch from db except lecture, check the length course
  */
@@ -43,7 +43,7 @@ export const createCourse = asyncHandler(async (req, res, next) => {
     createdBy,
     thumbnail: {
       public_id: "public_id", // temporal string for now
-      secure_url: "secure_url", // temporal string for now
+      secure_url: "secure_url", // temporal string for
     },
   });
 
@@ -59,4 +59,24 @@ export const createCourse = asyncHandler(async (req, res, next) => {
     course,
   });
 });
-s;
+/**
+ * @GET_LECTURES_BY_COURSE_ID
+ * @ROUTE @GET {{URL}}/api/v1/course/
+ * @ACCESS private
+ * get course id -> make sure id is present -> db fetch -> check if successfully fetch
+ */
+export const getLecturesByCourseId = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const course = await Course.findById(id);
+
+  if (!course) {
+    return next(new AppError("Invalid course id or course not found.", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Course lectures fetched successfully",
+    lectures: course.lectures,
+  });
+});
