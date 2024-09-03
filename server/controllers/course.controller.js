@@ -22,3 +22,41 @@ export const getAllCourse = asyncHandler(async (_req, res, next) => {
     courses,
   });
 });
+
+/**
+ * @CREATE_COURSE
+ * @ROUTE @POST {{URL}}/api/v1/course/
+ * @ACCESS private
+ * get fields -> validate fields -> add to db -> check if successfully added
+ */
+export const createCourse = asyncHandler(async (req, res, next) => {
+  const { title, description, category, createdBy } = req.body;
+
+  if (!title || !description || !category || !createdBy) {
+    return next(new AppError("All fields are required", 400));
+  }
+
+  const course = await Course.create({
+    title,
+    description,
+    category,
+    createdBy,
+    thumbnail: {
+      public_id: "public_id", // temporal string for now
+      secure_url: "secure_url", // temporal string for now
+    },
+  });
+
+  if (!course) {
+    return next(
+      new AppError("Course could not be created, please try again", 400)
+    );
+  }
+
+  res.status(201).json({
+    success: true,
+    message: "Course created successfully",
+    course,
+  });
+});
+s;
