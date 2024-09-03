@@ -1,6 +1,10 @@
 import asyncHandler from "../middlewares/asyncHandler.middleware.js";
 import Course from "../models/course.model.js";
 import AppError from "../utils/appError.js";
+import fs from "fs/promises";
+import path from "path";
+
+import cloudinary from "cloudinary";
 
 /**
  * @GET_ALL_COURSE
@@ -84,14 +88,10 @@ export const getLecturesByCourseId = asyncHandler(async (req, res, next) => {
 
 /**
  * @ADD_LECTURES_TO_COURSE
- * @ROUTE @GET {{URL}}/api/v1/course/
+ * @ROUTE @POST {{URL}}/api/v1/course/
  * @ACCESS private
  * get course ID -> gather lectures data fields -> validate fields -> check for the course existence -> check if field is present upload to cloudinary (using the fs/promise and path)
  */
-import fs from "fs/promises";
-import path from "path";
-
-import cloudinary from "cloudinary";
 
 export const addLecturesToCourseById = asyncHandler(async (req, res, next) => {
   const { title, description } = req.body;
@@ -158,5 +158,58 @@ export const addLecturesToCourseById = asyncHandler(async (req, res, next) => {
     success: true,
     message: "Course lecture added successfully",
     course,
+  });
+});
+
+/**
+ * @ADD_LECTURES_TO_COURSE
+ * @ROUTE @DELETE {{URL}}/api/v1/course/
+ * @ACCESS private
+ * get course and lecture ID -> validate the course and lecture ID -> remove the lecture using splice method -> update the course and lecture
+ */
+export const removeLectureFromCourse = asyncHandler(async (req, res, next) => {
+  // Grabbing the courseId and lectureId from req.query
+  const { courseId, lectureId } = req.params;
+
+  // Checking if both courseId and lectureId are present
+  if (!courseId) {
+    return next(new AppError("Course ID is required", 400));
+  }
+
+  if (!lectureId) {
+    return next(new AppError("Lecture ID is required", 400));
+  }
+
+  // Find the course using the courseId
+  const course = await Course.findById(courseId);
+
+  // If no course send custom message
+  if (!course) {
+    return next(new AppError("Invalid ID or Course does not exist.", 404));
+  }
+
+  // Find the index of the lecture using the lectureId
+  const lectureIndex = course.lectures.findIndex(
+    (lecture) => lecture._id.toString() === lectureId.toString()
+  );
+
+  // If returned index is -1 then send error as mentioned below
+  if (lectureIndex === -1) {
+    return next(new AppError("Lecture does not exist.", 404));
+  }
+
+  // Remove the lecture from the array
+  course.lectures.splice(lectureIndex, 1);
+
+  // update the number of lectures based on lectures array length
+  course.numberOfLectures = course.lectures.length;
+
+  // Save the course object
+  await course.save();
+
+  // Return response
+  res.status(200).json({
+    success: true,
+    message: "Course lecture removed successfully",
   });
 });

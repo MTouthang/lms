@@ -4,6 +4,7 @@ import {
   createCourse,
   getAllCourse,
   getLecturesByCourseId,
+  removeLectureFromCourse,
 } from "../controllers/course.controller.js";
 import { authorizeRoles, isLoggedIn } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -18,6 +19,13 @@ router.post(
   authorizeRoles("ADMIN"),
   upload.single("lecture"),
   addLecturesToCourseById
+);
+
+router.delete(
+  "/:courseId/lecture/:lectureId",
+  isLoggedIn,
+  authorizeRoles("ADMIN"),
+  removeLectureFromCourse
 );
 
 export default router;
