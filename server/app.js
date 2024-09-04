@@ -6,6 +6,7 @@ import morgan from "morgan";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import userRoutes from "./routes/user.routes.js";
 import courseRoutes from "./routes/course.route.js";
+import paymentRoutes from "./routes/payment.route.js";
 
 config();
 const app = express();
@@ -22,6 +23,7 @@ app.use(morgan("dev"));
 // user routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/course", courseRoutes);
+app.use("/api/v1/payments", paymentRoutes);
 
 app.use(errorMiddleware);
 
