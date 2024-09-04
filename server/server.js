@@ -1,6 +1,7 @@
 import app from "./app.js";
 import connectToDB from "./configs/dbConn.js";
 import { v2 } from "cloudinary";
+import Razorpay from "razorpay";
 
 // Cloudinary configuration
 v2.config({
@@ -10,6 +11,12 @@ v2.config({
 });
 
 const PORT = process.env.PORT;
+
+// Razorpay configuration
+export const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET,
+});
 
 app.get("/ping", (_req, res) => {
   res.send("pong");
