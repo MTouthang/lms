@@ -14,16 +14,14 @@ const cookieOptions = {
 };
 
 /**
- * Register user steps.
- * -> take the input data from req.body
- * -> validation and make sure data are present
- * -> check if user is already present in the database and throw error if present
- * -> create the user with the given data
- * -> check if the user has been created successfully
- * -> if user created successfully generate token
- * -> response the success with message and user data (user password should be omitted)
+ * @swagger
+ * /ping:
+ *   get:
+ *     summary: Returns a pong response
+ *     responses:
+ *       200:
+ *         description: pong response
  */
-
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
 
