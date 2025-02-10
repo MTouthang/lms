@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import errorMiddleware from "./middlewares/error.middleware.js";
-import userRoutes from "./routes/user.routes.js";
+import userRoutes from "./routes/user.route.js";
 import courseRoutes from "./routes/course.route.js";
 import paymentRoutes from "./routes/payment.route.js";
 

@@ -15,12 +15,60 @@ const cookieOptions = {
 
 /**
  * @swagger
- * /ping:
- *   get:
- *     summary: Returns a pong response
+ * /user/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The user's name
+ *               email:
+ *                 type: string
+ *                 description: The user's email
+ *               password:
+ *                 type: string
+ *                 description: The user's password
  *     responses:
- *       200:
- *         description: pong response
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     name:
+ *                       type: string
+ *                     email:
+ *                       type: string
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
  */
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -75,26 +123,6 @@ export const registerUser = asyncHandler(async (req, res, next) => {
 
 /**
  * Login users
- * /**
- * @function loginUser
- * @description Logs in a user by verifying their email and password, generating a JWT token, and setting a cookie.
- * @async
- *
- * @param {string} req.body.email - The email of the user
- * @param {string} req.body.password - The password of the user
- * @param {Function} next - Express next middleware function
- *
- * @throws {AppError} 400 - If email or password is not provided
- * @throws {AppError} 401 - If email or password is incorrect, or user does not exist
- *
- * @returns {Promise<void>} Responds with success message, user data (without password), and sets a cookie with JWT token if login is successful
- * --- Flow ---
- * -> get the field (password, email)
- * -> validate if the email and present
- * -> find the user with email along with the password
- * -> check and compared the password
- * -> generate token and cookie
- * -> response with success message, with user data
  */
 export const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
@@ -105,7 +133,6 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
   // finding the user with sent email
   const user = await User.findOne({ email }).select("+password");
-  console.log(user);
 
   if (!(user && (await user.comparePassword(password)))) {
     return next(
