@@ -199,6 +199,7 @@ export const getLoggedUserDetails = asyncHandler(async (req, res) => {
  * @FORGOT_PASSWORD
  * @ROUTE @POST {{URL}}/api/v1/user/reset
  * @ACCESS Public
+ * TODO: OTP can be sent to the user's email for verification
  */
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
@@ -271,11 +272,8 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
 export const resetPassword = asyncHandler(async (req, res, next) => {
   // Extracting resetToken from req.params object
   const { resetToken } = req.params;
-  console.log(resetToken);
   // Extracting password from req.body object
   const { password } = req.body;
-
-  console.log(password);
 
   // We are again hashing the resetToken using sha256 since we have stored our resetToken in DB using the same algorithm
   const forgotPasswordToken = crypto
@@ -328,8 +326,6 @@ export const updateUser = asyncHandler(async (req, res, next) => {
   // Destructuring the necessary data from the req object
   const { name } = req.body;
   const { id } = req.params;
-  console.log(name);
-  console.log(id);
 
   const user = await User.findById(id);
 
