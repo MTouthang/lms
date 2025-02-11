@@ -71,7 +71,7 @@ const cookieOptions = {
  *                   type: string
  */
 export const registerUser = asyncHandler(async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, role } = req.body;
 
   // check if the data are present
   if (!name || !email || !password) {
@@ -91,6 +91,7 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     name,
     email,
     password,
+    role,
     avatar: {
       public_id: "135",
       secure_url: "random_url",
@@ -375,3 +376,5 @@ export const updateUser = asyncHandler(async (req, res, next) => {
     message: "User details updated successfully",
   });
 });
+
+// TODO: delete or ban user

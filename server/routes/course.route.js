@@ -4,6 +4,7 @@ import {
   createCourse,
   deleteCourseById,
   getAllCourse,
+  getCourseById,
   getLecturesByCourseId,
   removeLectureFromCourse,
 } from "../controllers/course.controller.js";
@@ -13,7 +14,7 @@ const router = express.Router();
 
 router.get("/", getAllCourse);
 router.post("/", isLoggedIn, createCourse);
-router.get("/:id", isLoggedIn, getLecturesByCourseId);
+router.get("/lectures/:id", isLoggedIn, getLecturesByCourseId);
 router.post(
   "/:id",
   isLoggedIn,
@@ -30,5 +31,5 @@ router.delete(
 );
 
 router.delete("/:id", isLoggedIn, authorizeRoles("ADMIN"), deleteCourseById);
-
+router.get("/:id", isLoggedIn, getCourseById);
 export default router;

@@ -15,14 +15,11 @@ import cloudinary from "cloudinary";
 export const getAllCourse = asyncHandler(async (_req, res, next) => {
   const courses = await Course.find({}).select("-lectures");
 
-  // If no courses send the same
-  if (!courses.length) {
-    return next(new AppError("No course found", 404));
-  }
-
   res.status(200).json({
     success: true,
-    message: "All courses",
+    message: courses.length
+      ? "All courses fetched successfully"
+      : "No courses found",
     courses,
   });
 });
@@ -162,7 +159,7 @@ export const addLecturesToCourseById = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * @ADD_LECTURES_TO_COURSE
+ * @removeLectureFromCourse
  * @ROUTE @DELETE {{URL}}/api/v1/course/
  * @ACCESS private
  * get course and lecture ID -> validate the course and lecture ID -> remove the lecture using splice method -> update the course and lecture
@@ -239,3 +236,32 @@ export const deleteCourseById = asyncHandler(async (req, res, next) => {
     message: "Course deleted successfully",
   });
 });
+
+/**
+ * @getCourseById
+ * @ROUTE @GET {{URL}}/api/v1/course/:id
+ * @ACCESS private
+ * get course ID -> perform delete operation
+ */
+
+export const getCourseById = asyncHandler(async (req, res, next) => {
+  // Extracting id from the request parameters
+  const { id } = req.params;
+
+  // Finding the course via the course ID
+  const course = await Course.findById(id);
+
+  // If course not find send the message as stated below
+  if (!course) {
+    return next(new AppError("Course with given id does not exist.", 404));
+  }
+
+  // Send the message as response
+  res.status(200).json({
+    success: true,
+    message: "Course fetch successfully",
+    course,
+  });
+});
+
+// TODO: update course and lecture
