@@ -1,6 +1,7 @@
 import AppError from "../utils/appError.js";
 import jwt from "jsonwebtoken";
 import asyncHandler from "./asyncHandler.middleware.js";
+import User from "../models/user.model.js";
 
 export const isLoggedIn = async (req, res, next) => {
   try {
@@ -44,3 +45,13 @@ export const authorizeRoles = (...roles) =>
 
     next();
   });
+
+//  middleware to check for subscribe user
+export const authrizeSubscribers = asyncHandler(async (req, res, next) => {
+  // If user is not admin or does not have an active subscription then error else pass
+  if (req.user.role !== "ADMIN" && req.user.subscription.status !== "active") {
+    return next(new AppError("Please subscribe to access this route.", 403));
+  }
+
+  next();
+});

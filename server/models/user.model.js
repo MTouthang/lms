@@ -68,8 +68,8 @@ userSchema.methods.comparePassword = async function (plainPassword) {
   return await bcrypt.compare(plainPassword, this.password);
 };
 
-userSchema.methods.generateJWTToken = function () {
-  return jwt.sign(
+userSchema.methods.generateJWTToken = async function () {
+  return await jwt.sign(
     { id: this._id, role: this.role, subscription: this.subscription },
     process.env.JWT_SECRET,
     {
