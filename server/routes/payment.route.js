@@ -5,4 +5,6 @@ const router = express.Router();
 
 router.route("/subscribe").post(isLoggedIn, buySubScriptionPlan);
 
+router.route("/verify").post(isLoggedIn, verifySubscription);
+
 export default router;

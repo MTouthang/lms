@@ -23,7 +23,7 @@ app.use(morgan("dev"));
 // user routes
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/course", courseRoutes);
-app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/payment", paymentRoutes);
 
 app.use(errorMiddleware);
 
