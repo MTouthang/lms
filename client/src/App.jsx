@@ -1,7 +1,9 @@
+import { Routes } from "react-router";
+
 function App() {
   return (
     <>
-      <p> App </p>
+      <Routes></Routes>
     </>
   );
 }
