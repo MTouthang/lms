@@ -1,9 +1,14 @@
-import { Routes } from "react-router";
+import { Routes, Route } from "react-router";
+import Homepage from "./pages/Homepage.jsx";
+import Signup from "./pages/Signup.jsx";
 
 function App() {
   return (
     <>
-      <Routes></Routes>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
     </>
   );
 }
