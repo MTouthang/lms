@@ -72,10 +72,11 @@ const cookieOptions = {
  */
 export const registerUser = asyncHandler(async (req, res, next) => {
   const { name, email, password, role } = req.body;
+  console.log(name, email, password);
 
   // check if the data are present
   if (!name || !email || !password) {
-    return next(new AppError("All fields are required", 400));
+    return next(new AppError("All fields are required!!", 400));
   }
 
   // Check if the user exists with the provided email
@@ -98,12 +99,40 @@ export const registerUser = asyncHandler(async (req, res, next) => {
     },
   });
 
+  if (req.file) {
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: "lms", // Save files in a folder named lms
+        width: 250,
+        height: 250,
+        gravity: "faces",
+        crop: "fill",
+      });
+
+      // If success
+      if (result) {
+        // Set the public_id and secure_url in DB
+        user.avatar.public_id = result.public_id;
+        user.avatar.secure_url = result.secure_url;
+
+        // After successful upload remove the file from local storage
+        fs.rm(`uploads/${req.file.filename}`);
+      }
+    } catch (error) {
+      return next(
+        new AppError(error || "File not uploaded, please try again", 400)
+      );
+    }
+  }
+
   // If user not created send message response
   if (!user) {
     return next(
       new AppError("User registration failed, please try again later", 400)
     );
   }
+
+  await user.save();
 
   // Generating a JWT token
   const token = await user.generateJWTToken();
