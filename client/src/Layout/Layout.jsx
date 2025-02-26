@@ -1,13 +1,14 @@
 import { FiMenu } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiFillCloseCircle } from "react-icons/ai";
 import Footer from "../Components/Footer.jsx";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../Redux/authSlice.js";
 
 // eslint-disable-next-line react/prop-types
 const Layout = ({ children }) => {
-  // const dispatch = useDispatch();
-  // const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // for checking user logged in or not
   const isLoggedIn = useSelector((state) => state?.auth?.isLoggedIn);
@@ -32,12 +33,17 @@ const Layout = ({ children }) => {
   };
 
   // function to handle logout
-  const handleLogout = async () => {};
+  const handleLogout = async (event) => {
+    event.preventDefault();
+    const res = await dispatch(logout());
+    // redirect to home page if true
+    if (res?.payload?.success) navigate("/");
+  };
 
   return (
     <div className="min-h-[90vh]">
       {/* adding the daisy ui drawer */}
-      <div className="drawer absolute z-50 left-0 w-fit">
+      <div className="drawer absolute z-50 left-0 w-fit ">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
           <label htmlFor="my-drawer" className="cursor-pointer relative">
@@ -49,9 +55,9 @@ const Layout = ({ children }) => {
           </label>
         </div>
 
-        <div className="drawer-side w-0">
+        <div className="drawer-side w-0 ">
           <label htmlFor="my-drawer" className="drawer-overlay"></label>
-          <ul className="menu p-4 w-48 sm:w-80 bg-base-100 text-base-content relative">
+          <ul className="menu p-4 h-56 w-48 sm:w-80 bg-base-100 text-base-content relative ">
             {/* close button for drawer */}
             <li className="w-fit absolute right-2 z-50">
               <button onClick={hideDrawer}>
@@ -85,7 +91,7 @@ const Layout = ({ children }) => {
             {/* creating the bottom part of drawer */}
             {/* if user is not logged in */}
             {!isLoggedIn && (
-              <li className="absolute bottom-4 w-[90%]">
+              <li className="absolute bottom-2 w-[90%]">
                 <div className="w-full flex items-center justify-center">
                   <button className="btn-primary px-4 py-1 font-semibold rounded-md w-full">
                     <Link to={"/login"}>Login</Link>
@@ -99,7 +105,7 @@ const Layout = ({ children }) => {
 
             {/* if user is logged in */}
             {isLoggedIn && (
-              <li className="absolute bottom-4 w-[90%]">
+              <li className="absolute bottom-2 w-[90%]">
                 <div className="w-full flex items-center justify-center">
                   <button className="btn-primary px-4 py-1 font-semibold rounded-md w-full">
                     <Link to={"/user/profile"}>Profile</Link>
