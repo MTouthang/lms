@@ -36,7 +36,6 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-[90vh]">
-      <button className="btn btn-secondary">Secondary</button>
       {/* adding the daisy ui drawer */}
       <div className="drawer absolute z-50 left-0 w-fit">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />

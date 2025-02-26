@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Layout from "../Layout/Layout";
 import { BsPersonCircle } from "react-icons/bs";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { createAccount } from "../Redux/authSlice";
 
 const Signup = () => {
-  //   const dispatch = useDispatch();
-  //   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [previewImage, setImagePreview] = useState("");
 
   // for user input
   const [signupData, setSignupData] = useState({
-    fullName: "",
+    name: "",
     email: "",
     password: "",
     avatar: "",
@@ -28,7 +31,6 @@ const Signup = () => {
 
   // function to handle the image upload
   const getImage = (event) => {
-    event.preventDefault();
     // getting the image
     const uploadedImage = event.target.files[0];
 
@@ -47,7 +49,71 @@ const Signup = () => {
   };
 
   // function to create account
-  const createNewAccount = async () => {};
+  const createNewAccount = async (event) => {
+    event.preventDefault();
+    // checking the empty fields
+    if (
+      !signupData.avatar ||
+      !signupData.email ||
+      !signupData.name ||
+      !signupData.password
+    ) {
+      toast.error("Please fill all the fields");
+      return;
+    }
+
+    // checking the name field length
+    if (signupData.name.length < 5) {
+      toast.error("Name should be atleast of 5 characters");
+      return;
+    }
+
+    // email validation using regex
+    if (
+      !signupData.email.match(/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/)
+    ) {
+      toast.error("Invalid email id");
+      return;
+    }
+
+    // password validation using regex
+    if (!signupData.password.match(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,20}$/)) {
+      toast.error(
+        "Minimum password length should be 8 with Uppercase, Lowercase, Number and Symbol"
+      );
+      return;
+    }
+
+    // creating the form data from the existing data
+    const formData = new FormData();
+
+    formData.append("name", signupData.name);
+    formData.append("email", signupData.email);
+    formData.append("password", signupData.password);
+    formData.append("avatar", signupData.avatar);
+
+    //  Debugging FormData
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+    // calling create account action
+    const res = await dispatch(createAccount(formData));
+    console.log(res);
+
+    // redirect to login page if true
+    if (res?.payload?.success) {
+      navigate("/login");
+    } else {
+      // clearing the signup inputs
+      setSignupData({
+        name: "",
+        email: "",
+        password: "",
+        avatar: "",
+      });
+      setImagePreview("");
+    }
+  };
 
   return (
     <Layout>
@@ -59,7 +125,7 @@ const Signup = () => {
           <h1 className="text-center text-2xl font-bold">Registration Page</h1>
 
           {/* input for image file */}
-          <label className="cursor-pointer" htmlFor="image_uploads">
+          <label className="cursor-pointer" htmlFor="avatar">
             {previewImage ? (
               <img
                 className="w-24 h-24 rounded-full m-auto"
@@ -74,24 +140,24 @@ const Signup = () => {
             onChange={getImage}
             className="hidden"
             type="file"
-            id="image_uploads"
-            name="image_uploads"
+            id="avatar"
+            name="avatar"
             accept=".jpg, .jpeg, .png"
           />
 
           {/* input for name */}
           <div className="flex flex-col gap-1">
-            <label className="font-semibold" htmlFor="fullName">
+            <label className="font-semibold" htmlFor="name">
               Name
             </label>
             <input
               required
               type="name"
-              name="fullName"
-              id="fullName"
+              name="name"
+              id="name"
               placeholder="Enter your name"
               className="bg-transparent px-2 py-1 border"
-              value={signupData.fullName}
+              value={signupData.name}
               onChange={handleUserInput}
             />
           </div>
