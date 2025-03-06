@@ -7,7 +7,6 @@ import { getAllCourses } from "../../Redux/courseSlice.js";
 const Courses = () => {
   const dispatch = useDispatch();
   const { coursesData } = useSelector((state) => state.course);
-  console.log(coursesData);
 
   useEffect(() => {
     (async () => {
